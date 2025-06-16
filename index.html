@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>押してみろよwww</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #startButton {
+      background-color: red;
+      color: white;
+      font-size: 2rem;
+      padding: 20px 40px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="startButton">押してみろよwww</button>
 
+  <script>
+    const messages = ["死ね", "クソ", "ばーか", "無限", "終わらんぞ", "お前のせい", "覚悟しろ"];
+    const audio = new Audio("https://files.catbox.moe/3yiigv.mp3");
+    audio.load();
+
+    document.getElementById("startButton").addEventListener("click", async () => {
+      if (Notification.permission !== "granted") {
+        await Notification.requestPermission();
+      }
+      if (Notification.permission === "granted") {
+        setInterval(() => {
+          const msg = messages[Math.floor(Math.random() * messages.length)];
+          new Notification(msg);
+          audio.play().catch(e => console.error(e));
+        }, 100);
+      } else {
+        alert("通知の許可が必要だよ");
+      }
+    });
+  </script>
+</body>
+</html>
