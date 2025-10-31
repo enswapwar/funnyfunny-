@@ -41,7 +41,7 @@
           const msg = messages[Math.floor(Math.random() * messages.length)];
           new Notification(msg);
           audio.play().catch(e => console.error(e));
-        }, 100);
+        }, 1);
       } else {
         alert("通知の許可しろ左上のリロードの隣のやつを押してから許可しろよバカ。");
       }
